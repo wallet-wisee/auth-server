@@ -1,0 +1,25 @@
+services:
+  # AUTH-SERVICE DATABASE
+  auth-database:
+    container_name: auth-database
+    image: mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    expose:
+      - "27017"
+    volumes:
+      - ../_dist/auth-data:/data/db
+
+  # Auth service
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "8081:8080"
+    expose:
+      - "8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker

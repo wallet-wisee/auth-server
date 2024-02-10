@@ -1,0 +1,139 @@
+package com.walletwise.authservice.v1.service.impl.authentication;
+
+import com.walletwise.authservice.v1.api.dto.ValidateUserValidationCodeRequest;
+import com.walletwise.authservice.v1.api.exception.BusinessException;
+import com.walletwise.authservice.v1.model.entity.UserCredential;
+import com.walletwise.authservice.v1.model.repository.IUserCredentialRepository;
+import com.walletwise.authservice.v1.service.contract.authentication.IValidateUserValidationCodeService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.Mockito.*;
+
+@ActiveProfiles("test")
+@ExtendWith(SpringExtension.class)
+public class ValidateUserValidationCodeServiceTests {
+    private IValidateUserValidationCodeService service;
+    @MockBean
+    private IUserCredentialRepository repository;
+
+    @BeforeEach
+    public void setUp() {
+        this.service = new ValidateUserValidationCodeService(repository);
+    }
+
+    @Test
+    @DisplayName("Should throw business exception if the user email is not registered")
+    public void shouldThrowBusinessExceptionIfNotRegistered() {
+        ValidateUserValidationCodeRequest request = ValidateUserValidationCodeRequest
+                .builder()
+                .email("any_email")
+                .validationCode(12345)
+                .build();
+
+        when(this.repository.findByEmail(request.getEmail())).thenReturn(Optional.empty());
+        Throwable exception = catchThrowable(() -> this.service.validate(request));
+        assertThat(exception)
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("Invalid email address, please verify the email address and try again!");
+        verify(this.repository, atLeast(1)).findByEmail(request.getEmail());
+    }
+
+    @Test
+    @DisplayName("Should throw business exception if the user account is already registered")
+    public void shouldThrowBusinessExceptionIfUserAccountIsAlreadyActived() {
+        ValidateUserValidationCodeRequest request = ValidateUserValidationCodeRequest
+                .builder()
+                .email("any_email")
+                .validationCode(12345)
+                .build();
+
+        UserCredential SavedUserCredential = UserCredential
+                .builder()
+                .name("any_name")
+                .isActive(true)
+                .build();
+
+        when(this.repository.findByEmail(request.getEmail())).thenReturn(Optional.of(SavedUserCredential));
+        Throwable exception = catchThrowable(() -> this.service.validate(request));
+        assertThat(exception)
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("The email you've entered is already registered,please try to login  with your credentials.");
+        verify(this.repository, atLeast(2)).findByEmail(request.getEmail());
+    }
+
+    @Test
+    @DisplayName("Should throw business exception if the validation code  is invalid")
+    public void shouldThrowBusinessExceptionIfValidationCodeIsInvalid() {
+        ValidateUserValidationCodeRequest request = ValidateUserValidationCodeRequest
+                .builder()
+                .email("any_email")
+                .validationCode(1234)
+                .build();
+
+        UserCredential savedUserCredential = UserCredential
+                .builder()
+                .name("any_name")
+                .isActive(false)
+                .validationCode(5353)
+                .build();
+        when(this.repository.findByEmail(request.getEmail())).thenReturn(Optional.of(savedUserCredential));
+        when(this.repository.findByEmailAndValidationCode(request.getEmail(), request.getValidationCode())).thenReturn(Optional.empty());
+        Throwable exception = catchThrowable(() -> this.service.validate(request));
+        assertThat(exception)
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("The validation code you've entered is invalid. Please enter a valid code.");
+        verify(this.repository, atLeast(2)).findByEmail(request.getEmail());
+        verify(this.repository, atLeast(1)).findByEmailAndValidationCode(request.getEmail(), request.getValidationCode());
+
+    }
+
+    @Test
+    @DisplayName("Should active the user and set validation code to null")
+    public void shouldActiveUserAndSetValidationCodeToNull() {
+        ValidateUserValidationCodeRequest request = ValidateUserValidationCodeRequest
+                .builder()
+                .email("any_email")
+                .validationCode(1234)
+                .build();
+
+        UserCredential toSaveUserCredential = UserCredential
+                .builder()
+                .id("any_id")
+                .name("any_name")
+                .email("any_email")
+                .isActive(true)
+                .password("any_password")
+                .validationCode(null)
+                .build();
+
+        UserCredential savedUserCredential = UserCredential
+                .builder()
+                .id("any_id")
+                .name("any_name")
+                .email("any_email")
+                .isActive(false)
+                .password("any_password")
+                .validationCode(1234)
+                .build();
+
+        when(this.repository.findByEmail(request.getEmail())).thenReturn(Optional.of(savedUserCredential));
+        when(this.repository.findByEmailAndValidationCode(request.getEmail(), request.getValidationCode())).thenReturn(Optional.of(savedUserCredential));
+        when(this.repository.save(toSaveUserCredential)).thenReturn(toSaveUserCredential);
+
+        String result = this.service.validate(request);
+        verify(this.repository, atLeast(2)).findByEmail(request.getEmail());
+        verify(this.repository, atLeast(1)).findByEmailAndValidationCode(request.getEmail(), request.getValidationCode());
+        verify(this.repository, atLeast(1)).save(toSaveUserCredential);
+        assertThat(result).isEqualTo("Code validated successfully!");
+    }
+}

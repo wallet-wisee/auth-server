@@ -1,6 +1,11 @@
 # Auth Server
 
 
+[![pipeline status](https://gitlab.com/wallet-wise/auth-server/badges/staging/pipeline.svg)](https://gitlab.com/wallet-wise/auth-server/-/commits/staging)
+
+
+[![coverage report](https://gitlab.com/wallet-wise/auth-server/badges/staging/coverage.svg)](https://gitlab.com/wallet-wise/auth-server/-/commits/staging)
+
 
 ## Getting started
 

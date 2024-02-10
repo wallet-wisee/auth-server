@@ -61,5 +61,5 @@ sonarcloud-check:
     paths:
       - .sonar/cache
   script:
-    - mvn verify sonar:sonar -Dsonar.projectKey=wallet-wise_api-gateway
+    - mvn verify sonar:sonar -Dsonar.projectKey=wallet-wise_auth-server
 

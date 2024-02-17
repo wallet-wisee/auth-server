@@ -8,7 +8,7 @@ variables:
     -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository
     -Dorg.slf4j.simpleLogger.showDateTime=true
     -Djava.awt.headless=true
-  
+
   MAVEN_CLI_OPTS: >-
     --batch-mode
     --errors
@@ -21,17 +21,20 @@ variables:
 image: maven:3.6.3-openjdk-17
 
 stages:
-  - build
+  - compile
   - test
-  - analysis
+  - build
+  - deploy
 
 cache:
   paths:
     - .m2/repository
     - target
 
-build:
-  stage: build
+
+
+compile:
+  stage: compile
   script:
     - mvn clean package -DskipTests
   artifacts:
@@ -53,13 +56,50 @@ test:
         - "**/target/surefire-reports/TEST-*.xml"
         - "**/target/failsafe-reports/TEST-*.xml"
     expire_in: 1 hour
+  only:
+    - master
+    - staging
 
 
 sonarcloud-check:
+  stage: test
   cache:
     key: "${CI_JOB_NAME}"
     paths:
       - .sonar/cache
   script:
     - mvn verify sonar:sonar -Dsonar.projectKey=wallet-wise_auth-server
+  only:
+    - master
+    - staging
 
+build:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - export  IMAGE_TAG=`if [ $CI_COMMIT_BRANCH == "staging" ]; then echo $CI_COMMIT_SHORT_SHA; else echo $CI_COMMIT_TAG; fi;`
+    - docker login -u "$CI_DOCKER_HUB_USER" -p "$CI_DOCKER_HUB_PASSWORD" $CI_DOCKER_HUB_URL
+  script:
+    - docker build -t "gervasioartur/wallet-wise_auth-service:$IMAGE_TAG" .
+    - docker push gervasioartur/wallet-wise_auth-service:$IMAGE_TAG
+  only:
+    - master
+    - staging
+
+deploy:
+  image: mcr.microsoft.com/azure-cli:latest
+  stage: deploy
+  before_script:
+    - export  IMAGE_TAG=$CI_COMMIT_SHORT_SHA
+    - az login --username $AZURE_USER --password $AZURE_PASSWORD
+  script:
+    - az aks install-cli
+    - kubectl
+    - az aks get-credentials -n wallet-wise-dev-test -g wallet-wise-dev-test --admin
+    - kubectl apply -f auth-service-database-deployment.yml
+    - sed -i 's/<IMAGE_TAG>/'$IMAGE_TAG'/g' deployment.yml
+    - kubectl apply -f deployment.yml
+  only:
+    - staging

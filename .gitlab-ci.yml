@@ -98,7 +98,7 @@ deploy:
     - az aks install-cli
     - kubectl
     - az aks get-credentials -n wallet-wise-dev-test -g wallet-wise-dev-test --admin
-    - kubectl apply -f auth-service-database-deployment.yml
+   # - kubectl apply -f auth-service-database-deployment.yml
     - sed -i 's/<IMAGE_TAG>/'$IMAGE_TAG'/g' deployment.yml
     - kubectl apply -f deployment.yml
   only:

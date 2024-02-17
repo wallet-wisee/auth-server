@@ -18,22 +18,15 @@ variables:
     -DinstallAtEnd=true
     -DdeployAtEnd=true
 
-image: maven:3.6.3-openjdk-17
-
 stages:
   - compile
   - test
   - build
   - deploy
 
-cache:
-  paths:
-    - .m2/repository
-    - target
-
-
 
 compile:
+  image: maven:3.6.3-openjdk-17
   stage: compile
   script:
     - mvn clean package -DskipTests
@@ -62,6 +55,7 @@ test:
 
 
 sonarcloud-check:
+  image: maven:3.6.3-openjdk-17
   stage: test
   cache:
     key: "${CI_JOB_NAME}"

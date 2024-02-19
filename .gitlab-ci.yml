@@ -33,6 +33,8 @@ compile:
   artifacts:
     paths:
       - $CI_PROJECT_DIR
+  tags:
+    - lino-runner
 
 test:
   image: maven:3.6.3-openjdk-17
@@ -52,6 +54,8 @@ test:
   only:
     - master
     - staging
+  tags:
+    - lino-runner
 
 
 sonarcloud-check:
@@ -66,6 +70,8 @@ sonarcloud-check:
   only:
     - master
     - staging
+  tags:
+    - lino-runner
 
 build:
   image: docker:latest
@@ -81,6 +87,8 @@ build:
   only:
     - master
     - staging
+  tags:
+    - lino-runner
 
 deploy:
   image: mcr.microsoft.com/azure-cli:latest
@@ -97,3 +105,5 @@ deploy:
     - kubectl apply -f deployment.yml
   only:
     - staging
+  tags:
+    - lino-runner

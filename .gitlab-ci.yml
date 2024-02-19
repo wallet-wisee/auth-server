@@ -3,6 +3,8 @@ image: maven:3.6.3-openjdk-17
 variables:
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+  DOCKER_HOST: tcp://localhost:2375/
+  DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: "/certs"
 
   MAVEN_OPTS: >-
@@ -34,7 +36,10 @@ build:
   image: docker:latest
   stage: build
   services:
-    - docker:dind
+    - name: docker:dind
+      alias: localhost
+
+
   before_script:
     - export  IMAGE_TAG=`if [ $CI_COMMIT_BRANCH == "staging" ]; then echo $CI_COMMIT_SHORT_SHA; else echo $CI_COMMIT_TAG; fi;`
     #- docker login -u "$CI_DOCKER_HUB_USER" -p "$CI_DOCKER_HUB_PASSWORD" $CI_DOCKER_HUB_URL 

@@ -87,6 +87,8 @@ build:
   only:
     - master
     - staging
+  tags:
+    - build
 
 deploy:
   image: mcr.microsoft.com/azure-cli:latest
@@ -94,11 +96,10 @@ deploy:
   before_script:
     - export  IMAGE_TAG=$CI_COMMIT_SHORT_SHA
     - az login --username $AZURE_USER --password $AZURE_PASSWORD
-  script:
+  script: 
     - az aks install-cli
-    - kubectl
-    - az aks get-credentials -n wallet-wise-dev-test -g wallet-wise-dev-test --admin
-   # - kubectl apply -f auth-service-database-deployment.yml
+    - az account set --subscription $AKS_STAGING_CLUSTER_SUBSCRITION
+    - az aks get-credentials --resource-group $AKS_RESOURCE_GROUP --name $AKS_STAGING_CLUSTER_NAME --overwrite-existing
     - sed -i 's/<IMAGE_TAG>/'$IMAGE_TAG'/g' deployment.yml
     - kubectl apply -f deployment.yml
   only:

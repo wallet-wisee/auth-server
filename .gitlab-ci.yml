@@ -94,8 +94,8 @@ deploy:
   image: mcr.microsoft.com/azure-cli:latest
   stage: deploy
   variables:
-    IMAGE_TAG=$CI_COMMIT_SHORT_SHA
-    MONGO_URL_STAGING=$MONGO_URL_STAGING
+    IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+    MONGO_URL_STAGING: $MONGO_URL_STAGING
   before_script:
     - az login --username $AZURE_USER --password $AZURE_PASSWORD
   script: 

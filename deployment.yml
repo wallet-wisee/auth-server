@@ -20,7 +20,7 @@ spec:
               value: docker
           
             - name: MONGO_URL
-              value: <MONGO_URL_STAGING>
+              value: mongodb+srv://auth-database.muyf4pw.mongodb.net/auth-database?retryWrites=true&w=majority&appName=auth-database
   selector:
     matchLabels:
       app: auth-service

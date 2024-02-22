@@ -18,6 +18,8 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: docker
+            - name: MONGO_URL
+            - value: <MONGO_URL>
   selector:
     matchLabels:
       app: auth-service

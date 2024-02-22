@@ -100,8 +100,9 @@ deploy:
     - az aks install-cli
     - az account set --subscription $AKS_STAGING_CLUSTER_SUBSCRITION
     - az aks get-credentials --resource-group $AKS_RESOURCE_GROUP --name $AKS_STAGING_CLUSTER_NAME --overwrite-existing
-    - kubectl apply -f auth-service-database-deployment.yml
+    #- kubectl apply -f auth-service-database-deployment.yml
     - sed -i 's/<IMAGE_TAG>/'$IMAGE_TAG'/g' deployment.yml
+    - sed -i 's/<MONGO_URL>/'$MONGO_URL'/g' deployment.yml
     - kubectl apply -f deployment.yml
   only:
     - staging

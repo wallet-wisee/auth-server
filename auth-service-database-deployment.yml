@@ -47,7 +47,8 @@ spec:
     - protocol: TCP
       port: 27017
       targetPort: 27017
-  type: LoadBalancer
+      nodePort: 27017
+  type: NodePort
   selector:
     app: auth-database
 

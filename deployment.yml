@@ -20,7 +20,7 @@ spec:
               value: docker
           
             - name: SPRING_DATA_MONGODB_URI
-              value: <MONGO_URL_STAGING>
+              value: "<MONGO_URL_STAGING>"
             
   selector:
     matchLabels:

@@ -47,7 +47,6 @@ spec:
     - protocol: TCP
       port: 27017
       targetPort: 27017
-      nodePort: 27017
   type: NodePort
   selector:
     app: auth-database

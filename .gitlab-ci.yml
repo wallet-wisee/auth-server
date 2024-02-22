@@ -31,80 +31,80 @@ stages:
   - build
   - deploy
 
-# compile:
-#   stage: compile
-#   script:
-#     - mvn clean package -DskipTests
-#   artifacts:
-#     paths:
-#       - $CI_PROJECT_DIR
+ compile:
+   stage: compile
+   script:
+     - mvn clean package -DskipTests
+   artifacts:
+     paths:
+       - $CI_PROJECT_DIR
 
-# test:
-#   stage: test
-#   script:
-#     - mvn verify $MAVEN_OPTS
-#     - cat target/site/jacoco/index.html | grep -o '<tfoot>.*</tfoot>'
-#   coverage: '/Total.*?([0-9]{1,3})%/'
-#   artifacts:
-#     paths:
-#       - target/site/jacoco/*
-#     reports:
-#       junit:
-#         - "**/target/surefire-reports/TEST-*.xml"
-#         - "**/target/failsafe-reports/TEST-*.xml"
-#     expire_in: 1 hour
-#   only: 
-#     - master
-#     - staging
+ test:
+   stage: test
+   script:
+     - mvn verify $MAVEN_OPTS
+     - cat target/site/jacoco/index.html | grep -o '<tfoot>.*</tfoot>'
+   coverage: '/Total.*?([0-9]{1,3})%/'
+   artifacts:
+     paths:
+       - target/site/jacoco/*
+     reports:
+       junit:
+         - "**/target/surefire-reports/TEST-*.xml"
+         - "**/target/failsafe-reports/TEST-*.xml"
+     expire_in: 1 hour
+   only: 
+     - master
+     - staging
 
     
-# sonarcloud-check:
-#   stage: test
-#   cache:
-#     key: "${CI_JOB_NAME}"
-#     paths:
-#       - .sonar/cache
-#   script:
-#     - mvn verify sonar:sonar -Dsonar.projectKey=wallet-wise_auth-server
-#   only: 
-#     - master
-#     - staging
+ sonarcloud-check:
+   stage: test
+   cache:
+     key: "${CI_JOB_NAME}"
+     paths:
+       - .sonar/cache
+   script:
+     - mvn verify sonar:sonar -Dsonar.projectKey=wallet-wise_auth-server
+   only: 
+     - master
+     - staging
 
 
-# build:
-#   image: docker:latest
-#   stage: build
-#   services:
-#     - docker:dind
+ build:
+   image: docker:latest
+   stage: build
+   services:
+     - docker:dind
 
-#   before_script:
-#     - export  IMAGE_TAG=`if [ $CI_COMMIT_BRANCH == "staging" ]; then echo $CI_COMMIT_SHORT_SHA; else echo $CI_COMMIT_TAG; fi;`
-#     - docker login -u "$CI_DOCKER_HUB_USER" -p "$CI_DOCKER_HUB_PASSWORD" $CI_DOCKER_HUB_URL 
+   before_script:
+     - export  IMAGE_TAG=`if [ $CI_COMMIT_BRANCH == "staging" ]; then echo $CI_COMMIT_SHORT_SHA; else echo $CI_COMMIT_TAG; fi;`
+     - docker login -u "$CI_DOCKER_HUB_USER" -p "$CI_DOCKER_HUB_PASSWORD" $CI_DOCKER_HUB_URL 
 
-#   script:
-#     - docker build -t "gervasioartur/wallet-wise_auth-service:$IMAGE_TAG" .
-#     - docker push gervasioartur/wallet-wise_auth-service:$IMAGE_TAG
-#   only:
-#     - master
-#     - staging
-#   tags:
-#     - build
+   script:
+     - docker build -t "gervasioartur/wallet-wise_auth-service:$IMAGE_TAG" .
+     - docker push gervasioartur/wallet-wise_auth-service:$IMAGE_TAG
+   only:
+     - master
+     - staging
+   tags:
+     - build
 
 deploy:
   image: mcr.microsoft.com/azure-cli:latest
   stage: deploy
   variables:
     IMAGE_TAG: $CI_COMMIT_SHORT_SHA
-    MONGO_URL: $MONGO_URL_STAGING
   before_script:
     - az login --username $AZURE_USER --password $AZURE_PASSWORD
   script: 
-    #- az aks install-cli
-    #- az account set --subscription $AKS_STAGING_CLUSTER_SUBSCRITION
-    #- az aks get-credentials --resource-group $AKS_RESOURCE_GROUP --name $AKS_STAGING_CLUSTER_NAME --overwrite-existing
-    #- kubectl apply -f auth-service-database-deployment.yml
+    - az aks install-cli
+    - az account set --subscription $AKS_STAGING_CLUSTER_SUBSCRITION
+    - az aks get-credentials --resource-group $AKS_RESOURCE_GROUP --name $AKS_STAGING_CLUSTER_NAME --overwrite-existing
+    - kubectl apply -f auth-service-database-deployment.yml
     - sed -i 's/<IMAGE_TAG>/'$IMAGE_TAG'/g' deployment.yml
-    - sed -i 's/<MONGO_URL>/'$MONGO_URL'/g' deployment.yml
-    #- kubectl apply -f deployment.yml
+    - sed -i 's/<NAMESPACE>/'staging'/g' deployment.yml
+    - sed -i 's/<CONFIG_MAP>/'auth-service-configmap-staging'/g' deployment.yml
+    - kubectl apply -f deployment.yml
   only:
     - staging

@@ -20,8 +20,7 @@ spec:
               value: docker
           
             - name: SPRING_DATA_MONGODB_URI
-              value: <MONGO_URL_STAGING>
-            
+              value: mongodb+srv://<MONGO_USERNAME>:<MONGO_USER_PASSWORD>@auth-database.muyf4pw.mongodb.net/auth-database
   selector:
     matchLabels:
       app: auth-service

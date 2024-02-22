@@ -71,24 +71,24 @@ stages:
 #     - staging
 
 
-build:
-  image: docker:latest
-  stage: build
-  services:
-    - docker:dind
+# build:
+#   image: docker:latest
+#   stage: build
+#   services:
+#     - docker:dind
 
-  before_script:
-    - export  IMAGE_TAG=`if [ $CI_COMMIT_BRANCH == "staging" ]; then echo $CI_COMMIT_SHORT_SHA; else echo $CI_COMMIT_TAG; fi;`
-    - docker login -u "$CI_DOCKER_HUB_USER" -p "$CI_DOCKER_HUB_PASSWORD" $CI_DOCKER_HUB_URL 
+#   before_script:
+#     - export  IMAGE_TAG=`if [ $CI_COMMIT_BRANCH == "staging" ]; then echo $CI_COMMIT_SHORT_SHA; else echo $CI_COMMIT_TAG; fi;`
+#     - docker login -u "$CI_DOCKER_HUB_USER" -p "$CI_DOCKER_HUB_PASSWORD" $CI_DOCKER_HUB_URL 
 
-  script:
-    - docker build -t "gervasioartur/wallet-wise_auth-service:$IMAGE_TAG" .
-    - docker push gervasioartur/wallet-wise_auth-service:$IMAGE_TAG
-  only:
-    - master
-    - staging
-  tags:
-    - build
+#   script:
+#     - docker build -t "gervasioartur/wallet-wise_auth-service:$IMAGE_TAG" .
+#     - docker push gervasioartur/wallet-wise_auth-service:$IMAGE_TAG
+#   only:
+#     - master
+#     - staging
+#   tags:
+#     - build
 
 deploy:
   image: mcr.microsoft.com/azure-cli:latest

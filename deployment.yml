@@ -20,7 +20,7 @@ spec:
               value: docker
           
             - name: SPRING_DATA_MONGODB_URI
-              value: mongodb+srv://gervasioarthur:0199@auth-database.muyf4pw.mongodb.net/?retryWrites=true&w=majority&appName=auth-database
+              value: spring.data.mongodb.uri=mongodb+srv://gervasioarthur:0199@auth-database.muyf4pw.mongodb.net/auth-database
             
   selector:
     matchLabels:

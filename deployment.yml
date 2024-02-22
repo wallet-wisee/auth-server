@@ -16,10 +16,9 @@ spec:
           ports:
             - containerPort: 80
           envFrom:
-              valueFrom: 
-                - configMapRef: 
-                    name: <CONFIG_MAP>
-                                   
+            - configMapRef: 
+                name: <CONFIG_MAP>
+
   selector:
     matchLabels:
       app: auth-service

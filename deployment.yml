@@ -19,8 +19,9 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: docker
           
-            - name: MONGO_URL
+            - name: SPRING_DATA_MONGODB_URI
               value: mongodb+srv://auth-database.muyf4pw.mongodb.net/auth-database?retryWrites=true&w=majority&appName=auth-database
+            
   selector:
     matchLabels:
       app: auth-service

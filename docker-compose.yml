@@ -1,16 +1,4 @@
 services:
-  # AUTH-SERVICE DATABASE
-  auth-database:
-    container_name: auth-database
-    image: mongo
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    expose:
-      - "27017"
-    volumes:
-      - ../_dist/auth-data:/data/db
-
   # Auth service
   auth-service:
     build:

@@ -14,7 +14,13 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://documentation-service:9090"); // Domínio do seu frontend
+        //api-gateways 
+        config.addAllowedOrigin("http://api-gateway:8080"); 
+        config.addAllowedOrigin("http://localhost:8080");   
+        //documentation-service                                           
+        config.addAllowedOrigin("http://documentation-service:8080");
+        config.addAllowedOrigin("http://localhost:9090");
+        
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);

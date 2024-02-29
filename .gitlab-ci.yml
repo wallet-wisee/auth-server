@@ -34,7 +34,7 @@ stages:
 compile:
   stage: compile
   script:
-    - mvn clean package -DskipTests
+    - mvn clean compile -DskipTests
   artifacts:
     paths:
       - $CI_PROJECT_DIR

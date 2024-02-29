@@ -16,11 +16,8 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         //api-gateways 
         config.addAllowedOrigin("http://api-gateway:8080"); 
-        config.addAllowedOrigin("http://localhost:8080");   
-        //documentation-service                                           
-        config.addAllowedOrigin("http://documentation-service:8080");
+        config.addAllowedOrigin("http://localhost:8080");
         config.addAllowedOrigin("http://localhost:9090");
-        
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
